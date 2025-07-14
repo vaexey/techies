@@ -9,6 +9,9 @@ namespace techies::components
     bool MQTT::connected = false;
     techies::core::time_t MQTT::connect_time = 1;
     techies::core::time_t MQTT::connect_interval = 1500;
+    techies::core::time_t MQTT::failure_delay = 60000;
+    short MQTT::failure_limit = 5;
+    short MQTT::failure_count = 0;
 
     EthernetClient MQTT::eth;
     MQTTClient MQTT::client;
@@ -55,7 +58,10 @@ namespace techies::components
 
         if(!connected)
         {
-            if(now > connect_time + connect_interval)
+            bool failure_streak = failure_count >= 5;
+            auto interval = failure_streak ? failure_delay : connect_interval;
+
+            if(now > connect_time + interval)
             {
                 if(connect_time == 0)
                 {
@@ -78,12 +84,24 @@ namespace techies::components
                 {
                     L->Info(TAG, "MQTT connection successful");
                     connect_time = 0;
+                    failure_count = 0;
 
                     OnMQTTConnected();
                 }
                 else
                 {
-                    L->Warn(TAG, "Could not connect to MQTT, retrying in " + String(connect_interval));
+                    failure_count++;
+                    if(failure_count >= failure_limit)
+                    {
+                        L->Err(TAG, 
+                            "Could not connect to MQTT. Failure limit reached, retrying in " +
+                            String(failure_delay)
+                        );
+                    }
+                    else
+                    {
+                        L->Warn(TAG, "Could not connect to MQTT, retrying in " + String(connect_interval));
+                    }
                 }
             }
         }
@@ -93,15 +111,26 @@ namespace techies::components
     {
         L->Debug(TAG, "Subscribing...");
 
+        size_t subs = 0;
+
         char buffer[MQTTTopics::max_topic_length];
         for(size_t i = 0; i < MQTTTopics::topic_count; i++)
         {
+            if(!MQTTTopics::ShouldBeSubscribed(i))
+                continue;
+
             MQTTTopics::CopyString(i, buffer);
             L->Trace("MQTT_SUB", buffer);
             client.subscribe(buffer);
+            subs++;
         }
 
-        L->Trace(TAG, "Done");
+        L->Trace(TAG,
+            "Done. Subscribed topics: " +
+            String(subs) +
+            "/" +
+            String(MQTTTopics::topic_count)
+        );
     }
     
     void MQTT::OnMQTTMessage(String &topic, String &payload)

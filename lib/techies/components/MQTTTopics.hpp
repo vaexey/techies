@@ -33,16 +33,17 @@
     )
 
 namespace techies::components::MQTTTopics::Raw
-{
-    
+{   
     // Strings/lengths
     #define TOPICS(list) list
+    #define NOSUB(...) __VA_ARGS__
     #define TOPIC(name, string) \
         const char name##_pstr[] PROGMEM = PREFIX string; \
         const size_t name##_len = sizeof(name##_pstr);
 
     #include "../config/MQTTTopics.hpp"
     #undef TOPICS
+    #undef NOSUB
     #undef TOPIC
     #undef PREFIX
 
@@ -51,10 +52,12 @@ namespace techies::components::MQTTTopics::Raw
         const char *const pstr[] PROGMEM = { \
             list \
         };
+    #define NOSUB(...) __VA_ARGS__
     #define TOPIC(name, string) name##_pstr,
 
     #include "../config/MQTTTopics.hpp"
     #undef TOPICS
+    #undef NOSUB
     #undef TOPIC
     #undef PREFIX
 
@@ -63,10 +66,26 @@ namespace techies::components::MQTTTopics::Raw
         const size_t len[] = { \
             list \
         };
+    #define NOSUB(...) __VA_ARGS__
     #define TOPIC(name, string) name##_len,
 
     #include "../config/MQTTTopics.hpp"
     #undef TOPICS
+    #undef NOSUB
+    #undef TOPIC
+    #undef PREFIX
+
+    // Array of subscription flags
+    #define TOPICS(list) \
+        const bool subscribe[] = { \
+            list \
+        };
+    #define NOSUB(...) ! __VA_ARGS__
+    #define TOPIC(name, string) true, 
+
+    #include "../config/MQTTTopics.hpp"
+    #undef TOPICS
+    #undef NOSUB
     #undef TOPIC
     #undef PREFIX
 
@@ -75,10 +94,12 @@ namespace techies::components::MQTTTopics::Raw
         union max_length_u { \
             list \
         };
+    #define NOSUB(...) __VA_ARGS__
     #define TOPIC(name, string) uint8_t name[name##_len];
 
     #include "../config/MQTTTopics.hpp"
     #undef TOPICS
+    #undef NOSUB
     #undef TOPIC
     #undef PREFIX
 
@@ -97,14 +118,17 @@ namespace techies::components::MQTTTopics
     const int CONCAT(ben, __COUNTER__) = 1;
     const int CONCAT(ben, __COUNTER__) = 1;
 
+    // Topic indices
     namespace Raw { enum { COUNTER_BASE = __COUNTER__ }; };
 
     #define TOPICS(list) list
+    #define NOSUB(...) __VA_ARGS__
     #define TOPIC(name, string) \
         const topic_t name = { .i = ( __COUNTER__ - Raw::COUNTER_BASE - 1 ) };
 
     #include "../config/MQTTTopics.hpp"
     #undef TOPICS
+    #undef NOSUB
     #undef TOPIC
     #undef PREFIX
 
@@ -120,6 +144,16 @@ namespace techies::components::MQTTTopics
     inline void CopyString(topic_t topic, char* buffer)
     {
         CopyString(topic.i, buffer);
+    }
+
+    inline bool ShouldBeSubscribed(size_t topic)
+    {
+        return Raw::subscribe[topic];
+    }
+
+    inline bool ShouldBeSubscribed(topic_t topic)
+    {
+        return ShouldBeSubscribed(topic.i);
     }
 
 } // namespace techies::components::MQTTTopics

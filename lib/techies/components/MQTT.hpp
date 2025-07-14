@@ -21,6 +21,9 @@ namespace techies::components
         static bool connected;
         static techies::core::time_t connect_time;
         static techies::core::time_t connect_interval;
+        static techies::core::time_t failure_delay;
+        static short failure_limit;
+        static short failure_count;
 
         static EthernetClient eth;
         static MQTTClient client;
