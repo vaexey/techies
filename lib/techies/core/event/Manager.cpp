@@ -2,6 +2,7 @@
 
 namespace techies::core::event
 {
-    Collection<10> Manager::BeforeCycle;
-    Collection<10> Manager::AfterCycle;
+    Collection<TCFG_CORE_EVENT_CONNECTIONS_MAX> Manager::Reset;
+    Collection<TCFG_CORE_EVENT_CONNECTIONS_MAX> Manager::BeforeCycle;
+    Collection<TCFG_CORE_EVENT_CONNECTIONS_MAX> Manager::AfterCycle;
 } // namespace techies::core::event

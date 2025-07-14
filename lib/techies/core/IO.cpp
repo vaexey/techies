@@ -10,9 +10,14 @@ namespace techies::core
         void Init()
         {
             for(size_t i = 0; i < HAL_IX_COUNT; i++)
+            {
                 HAL_IX_INIT(i);
+            }
+
             for(size_t i = 0; i < HAL_QX_COUNT; i++)
-                HAL_QX_INIT(i);
+            {
+                HAL_QX_INIT_DEF(i, false);
+            }
         }
 
         void ReadInputs()

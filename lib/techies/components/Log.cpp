@@ -7,8 +7,6 @@
 #define LOGLEVEL_ERROR 5
 #define LOGLEVEL_CRITICAL 6
 
-#define MIN_LOGLEVEL LOGLEVEL_INFO
-
 namespace techies::components
 {
     Logger* Log;
@@ -17,53 +15,69 @@ namespace techies::components
         "[?????] ",
         "[TRACE] ",
         "[DEBUG] ",
-        "[INFO ] ",
-        "[WARN ] ",
-        "[ ERR ] ",
-        "[CRIT ] "
+        "[INFO]  ",
+        "[WARN]  ",
+        "[ERR]   ",
+        "[CRIT]  "
     };
+
+    void Logger::Log(const LogLevel level, const char* message)
+    {
+        Log(level, TCFG_C_LOG_DEFAULTTAG, message);
+    }
+
+    void Logger::Log(const LogLevel level, const String message)
+    {
+        Log(level, TCFG_C_LOG_DEFAULTTAG, message);
+    }
 
     #define LogLevelFn(level, name) \
         void Logger::name(const char* message) \
         { Log(LogLevel::level, message); } \
         void Logger::name(const String message) \
-        { Log(LogLevel::level, message); }
+        { Log(LogLevel::level, message); } \
+        void Logger::name(const char* tag, const char* message) \
+        { Log(LogLevel::level, tag, message); } \
+        void Logger::name(const char* tag, const String message) \
+        { Log(LogLevel::level, tag, message); }
 
     #define LogLevelFnPlaceholder(level, name) \
         void Logger::name(const char* message) {} \
-        void Logger::name(const String message) {}
+        void Logger::name(const String message) {} \
+        void Logger::name(const char* tag, const char* message) {} \
+        void Logger::name(const char* tag, const String message) {}
 
-    #if LOGLEVEL_TRACE >= MIN_LOGLEVEL
+    #if LOGLEVEL_TRACE >= TCFG_C_LOG_DEFAULTLEVEL
     LogLevelFn(TRACE, Trace);
     #else
     LogLevelFnPlaceholder(TRACE, Trace);
     #endif
 
-    #if LOGLEVEL_DEBUG >= MIN_LOGLEVEL
+    #if LOGLEVEL_DEBUG >= TCFG_C_LOG_DEFAULTLEVEL
     LogLevelFn(DEBUG, Debug);
     #else
     LogLevelFnPlaceholder(DEBUG, Debug);
     #endif
 
-    #if LOGLEVEL_INFO >= MIN_LOGLEVEL
+    #if LOGLEVEL_INFO >= TCFG_C_LOG_DEFAULTLEVEL
     LogLevelFn(INFO, Info);
     #else
     LogLevelFnPlaceholder(INFO, Info);
     #endif
 
-    #if LOGLEVEL_WARNING >= MIN_LOGLEVEL
+    #if LOGLEVEL_WARNING >= TCFG_C_LOG_DEFAULTLEVEL
     LogLevelFn(WARNING, Warn);
     #else
     LogLevelFnPlaceholder(WARNING, Warn);
     #endif
 
-    #if LOGLEVEL_ERROR >= MIN_LOGLEVEL
+    #if LOGLEVEL_ERROR >= TCFG_C_LOG_DEFAULTLEVEL
     LogLevelFn(ERROR, Err);
     #else
     LogLevelFnPlaceholder(ERROR, Err);
     #endif
 
-    #if LOGLEVEL_CRITICAL >= MIN_LOGLEVEL
+    #if LOGLEVEL_CRITICAL >= TCFG_C_LOG_DEFAULTLEVEL
     LogLevelFn(CRITICAL, Crit);
     #else
     LogLevelFnPlaceholder(CRITICAL, Crit);
@@ -75,15 +89,25 @@ namespace techies::components
     PrintLogger::PrintLogger(Print* _stream)
         : stream(_stream) {}
 
-    void PrintLogger::Log(const LogLevel level, const char* message)
+    void PrintLogger::Log(const LogLevel level, const char* tag, const char* message)
     {
         stream->print(LogLevelPrefix[(size_t)level]);
+        stream->print(tag);
+
+        for(int i = strlen(tag); i < TCFG_C_LOG_PRINT_TAG_INDENT; i++)
+            stream->write(' ');
+
         stream->println(message);
     }
 
-    void PrintLogger::Log(const LogLevel level, const String message)
+    void PrintLogger::Log(const LogLevel level, const char* tag, const String message)
     {
         stream->print(LogLevelPrefix[(size_t)level]);
+        stream->print(tag);
+
+        for(int i = strlen(tag); i < TCFG_C_LOG_PRINT_TAG_INDENT; i++)
+            stream->write(' ');
+        
         stream->println(message);
     }
 

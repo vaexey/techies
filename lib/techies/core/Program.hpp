@@ -1,8 +1,9 @@
-#include "HAL.hpp"
+#include "core/Config.hpp"
 #include "IO.hpp"
 #include "Time.hpp"
 #include "components/Log.hpp"
 #include "event/Manager.hpp"
+#define TAG "Program"
 
 namespace techies::core
 {
@@ -12,7 +13,7 @@ namespace techies::core
     {
     public:
         // Cycle period
-        time_t Period = 20;
+        time_t Period = TCFG_CORE_PROGRAM_PERIOD_DEFAULT;
 
         void CommitCycle()
         {
@@ -27,11 +28,11 @@ namespace techies::core
             if(diff >= Period)
             {
                 uint16_t sigma = (uint16_t)diff - (uint16_t)Period;
-                L->Trace("Yield starts cycle with sigma=" + String(sigma));
+                L->Trace(TAG, "Yield starts cycle with sigma=" + String(sigma));
                 
                 if(sigma > Period / 10)
                 {
-                    L->Warn("Can't keep up! sigma=" + String(sigma) + ", period=" + String(Period));
+                    L->Warn(TAG, "Can't keep up! sigma=" + String(sigma) + ", period=" + String(Period));
                 }
 
                 // time for next cycle
@@ -45,23 +46,40 @@ namespace techies::core
             CycleDelta = now - last_cycle;
             last_cycle = now;
 
-            L->Trace(String(GetTime() - last_cycle) + " Dispatching BeforeCycle");
+            L->Trace(TAG, "Dispatching BeforeCycle");
             event::Manager::BeforeCycle.Dispatch();
 
-            L->Trace(String(GetTime() - last_cycle) + " Reading inputs...");
+            L->Trace(TAG, "Reading inputs...");
             IO::ReadInputs();
 
-            L->Trace(String(GetTime() - last_cycle) + " Executing program cycle...");
+            L->Trace(TAG, "Executing program cycle...");
             T::Cycle(&Old, &New);
 
-            L->Trace(String(GetTime() - last_cycle) + " Commiting cycle");
+            L->Trace(TAG, "Commiting cycle");
             CommitCycle();
 
-            L->Trace(String(GetTime() - last_cycle) + " Writing outputs...");
+            L->Trace(TAG, "Writing outputs...");
             IO::WriteOutputs(New.QX);
 
-            L->Trace(String(GetTime() - last_cycle) + " Dispatching AfterCycle");
+            L->Trace(TAG, "Dispatching AfterCycle");
             event::Manager::AfterCycle.Dispatch();
+        }
+
+        void Reset()
+        {
+            L->Info(TAG, "Resetting techies...");
+
+            L->Trace(TAG, "Initializing I/O");
+            IO::Init();
+
+            L->Trace(TAG, "Dispatching OnReset");
+            event::Manager::Reset.Dispatch();
+
+            L->Trace(TAG, "Resetting program state");
+            T::Reset(&New);
+            CommitCycle();
+            
+            last_cycle = GetTime();
         }
 
     protected:
@@ -74,3 +92,5 @@ namespace techies::core
         time_t last_cycle = 0;
     };
 } // namespace techies::core
+
+#undef TAG

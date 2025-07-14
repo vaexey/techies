@@ -17,11 +17,21 @@ extern bool HAL_Mega_QX_inverted[HAL_QX_COUNT];
 
 // Read binary input
 #define HAL_IX_READ(index) ( digitalRead(HAL_Mega_IX_pins[( index )]) ^ HAL_Mega_IX_inverted[( index )] )
+// Init binary output
 #define HAL_IX_INIT(index) ( pinMode(HAL_Mega_IX_pins[( index )], INPUT_PULLUP) )
 
 // Write binary output
 #define HAL_QX_WRITE(index, state) ( digitalWrite(HAL_Mega_QX_pins[( index )], ( state ) ^ HAL_Mega_QX_inverted[( index )]) )
+// Init binary output
 #define HAL_QX_INIT(index) ( pinMode(HAL_Mega_QX_pins[( index )], OUTPUT) )
+// Init binary output with default value (inversion applied)
+#define HAL_QX_INIT_DEF(index, def) \
+{ \
+    pinMode(HAL_Mega_QX_pins[( index )], INPUT); \
+    digitalWrite(HAL_Mega_QX_pins[( index )], ( def ) ^ HAL_Mega_QX_inverted[( index )]); \
+    pinMode(HAL_Mega_QX_pins[( index )], OUTPUT); \
+    digitalWrite(HAL_Mega_QX_pins[( index )], ( def ) ^ HAL_Mega_QX_inverted[( index )]); \
+}
 
 typedef uint8_t HAL_IX_Address_t;
 typedef uint8_t HAL_QX_Address_t;

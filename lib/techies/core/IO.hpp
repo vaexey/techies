@@ -1,4 +1,4 @@
-#include "HAL.hpp"
+#include "core/Config.hpp"
 
 namespace techies::core
 {

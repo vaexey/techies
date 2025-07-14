@@ -1,5 +1,6 @@
-#include "core/HAL.hpp"
+#include "core/Config.hpp"
 #include "components/Log.hpp"
+#define TAG "EventCollection"
 
 namespace techies::core::event
 {
@@ -15,7 +16,7 @@ namespace techies::core::event
         {
             if(size >= max_connections)
             {
-                L->Crit("Ran out of free connection slots for " + String((unsigned long)callback));
+                L->Crit(TAG, "Ran out of free connection slots for " + String((unsigned long)callback));
 
                 return false;
             }
@@ -34,3 +35,5 @@ namespace techies::core::event
     };
 
 } // namespace techies::core::event
+
+#undef TAG
