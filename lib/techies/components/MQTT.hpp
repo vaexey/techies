@@ -44,5 +44,6 @@ namespace techies::components
         static void OnBeforeCycle();
 
         static bool Receive(MQTTTopics::topic_t topic, char buffer[TCFG_C_MQTT_MAX_PAYLOAD]);
+        static bool Send(MQTTTopics::topic_t topic, const char buffer[TCFG_C_MQTT_MAX_PAYLOAD]);
     };
 }

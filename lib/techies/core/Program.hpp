@@ -53,6 +53,7 @@ namespace techies::core
             IO::ReadInputs();
 
             L->Trace(TAG, "Executing program cycle...");
+            New.RST = 0;
             T::Cycle(&Old, &New);
 
             L->Trace(TAG, "Commiting cycle");
@@ -77,9 +78,15 @@ namespace techies::core
 
             L->Trace(TAG, "Resetting program state");
             T::Reset(&New);
+            New.RST = 1;
             CommitCycle();
             
             last_cycle = GetTime();
+        }
+
+        const T* GetCurrentState()
+        {
+            return &Old;
         }
 
     protected:

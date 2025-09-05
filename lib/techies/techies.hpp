@@ -10,6 +10,7 @@
 #include "components/Log.hpp"
 #include "components/Ethernet.hpp"
 #include "components/MQTT.hpp"
+#include "components/LCDHMI.hpp"
 
 #include "modules/TIMERS.hpp"
 #include "modules/EDGE.hpp"

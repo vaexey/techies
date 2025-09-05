@@ -16,7 +16,7 @@
  *                          by using varargs
  */
 
-#define TOPIC_URI_1(a) TOPIC(uri, #a)
+#define TOPIC_URI_1(a) TOPIC(a, #a)
 #define TOPIC_URI_2(a, b) TOPIC(a##__##b, #a "/" #b)
 #define TOPIC_URI_3(a, b, c) TOPIC(a##__##b##__##c, #a "/" #b "/" #c)
 

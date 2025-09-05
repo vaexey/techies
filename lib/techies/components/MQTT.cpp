@@ -155,4 +155,18 @@ namespace techies::components
     {
         return queue.Remove(topic.i, buffer);
     }
+
+    bool MQTT::Send(MQTTTopics::topic_t topic, const char payload[TCFG_C_MQTT_MAX_PAYLOAD])
+    {
+        if(!connected)
+            return false;
+
+        char buffer[MQTTTopics::max_topic_length];
+        MQTTTopics::CopyString(topic, buffer);
+
+        L->Debug("MQTT_PUB_T", buffer);
+        L->Trace("MQTT_PUB_P", payload);
+
+        return client.publish(buffer, payload);
+    }
 } // namespace techies::components

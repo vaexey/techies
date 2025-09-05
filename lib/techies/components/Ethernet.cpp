@@ -33,7 +33,9 @@ inline bool techies_components_Ethernet_HasHardware()
 
 inline bool techies_components_Ethernet_HasLink()
 {
-    return Ethernet.linkStatus() != LinkOFF;
+    return
+        techies_components_Ethernet_HasHardware() &&
+        (Ethernet.linkStatus() != LinkOFF);
 }
 
 namespace techies::components

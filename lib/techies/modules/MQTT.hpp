@@ -34,6 +34,21 @@ namespace techies::modules
         }
     };
 
+    class MQTT_PUB
+    {
+        bool Q;
+
+        static void Cycle(
+            const MQTT_PUB* Old,
+            MQTT_PUB* New,
+            techies::components::MQTTTopics::topic_t topic,
+            const char* payload,
+            bool IN
+        );
+
+        static void Reset(MQTT_PUB* New);
+    };
+
     typedef MQTT_RCV<TCFG_C_MQTT_MAX_PAYLOAD> MQTT_RCVD;
 
 } // namespace techies::modules

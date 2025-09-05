@@ -5,6 +5,8 @@ namespace techies::core
 {
     struct State
     {
+        bool RST;
+
         bool QX[HAL_QX_COUNT];
         inline bool IX(const size_t &i) const
         {
