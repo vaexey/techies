@@ -71,4 +71,26 @@ namespace techies::components
         Print* stream;
     };
 
+    class SpoonLogger : public Logger
+    {
+    public:
+        SpoonLogger();
+
+        void Log(const LogLevel level, const char* tag, const char* message);
+        void Log(const LogLevel level, const char* tag, const String message);
+    };
+
+    class FullLogger : public Logger
+    {
+    public:
+        FullLogger(Print* stream);
+        
+        void Log(const LogLevel level, const char* tag, const char* message);
+        void Log(const LogLevel level, const char* tag, const String message);
+
+    protected:
+        PrintLogger PrintL;
+        SpoonLogger SpoonL;
+    };
+
 } // namespace techies::components

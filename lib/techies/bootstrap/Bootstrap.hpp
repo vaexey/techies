@@ -3,7 +3,9 @@
 
 namespace techies::bootstrap
 {
-    techies::components::PrintLogger DefaultLogger(&Serial);
+    // techies::components::PrintLogger DefaultLogger(&Serial);
+    // techies::components::SpoonLogger DefaultLogger;
+    techies::components::FullLogger DefaultLogger(&Serial);
     struct DataState;
 
 

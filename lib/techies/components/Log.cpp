@@ -1,4 +1,5 @@
 #include "Log.hpp"
+#include "components/Ethernet.hpp"
 
 #define LOGLEVEL_TRACE 1
 #define LOGLEVEL_DEBUG 2
@@ -109,6 +110,68 @@ namespace techies::components
             stream->write(' ');
         
         stream->println(message);
+    }
+
+    SpoonLogger::SpoonLogger() {}
+    void SpoonLogger::Log(const LogLevel level, const char* tag, const char* message)
+    {
+        if(!techies::components::Ethernet::SpoonSocketActive)
+            return;
+
+        auto sock = techies::components::Ethernet::SpoonSocket;
+        sock.beginPacket(
+            IPAddress(TCFG_C_ETHERNET_SPOON_PEER_IP),
+            TCFG_C_ETHERNET_SPOON_PEER_PORT
+        );
+
+        sock.write(LogLevelPrefix[(size_t)level]);
+        sock.write(tag);
+
+        for(int i = strlen(tag); i < TCFG_C_LOG_PRINT_TAG_INDENT; i++)
+            sock.write(' ');
+
+        sock.write(message);
+        sock.write('\n');
+
+        sock.endPacket();
+    }
+
+    void SpoonLogger::Log(const LogLevel level, const char* tag, const String message)
+    {
+        if(!techies::components::Ethernet::SpoonSocketActive)
+            return;
+        
+        auto sock = techies::components::Ethernet::SpoonSocket;
+        sock.beginPacket(
+            IPAddress(TCFG_C_ETHERNET_SPOON_PEER_IP),
+            TCFG_C_ETHERNET_SPOON_PEER_PORT
+        );
+
+        sock.write(LogLevelPrefix[(size_t)level]);
+        sock.write(tag);
+
+        for(int i = strlen(tag); i < TCFG_C_LOG_PRINT_TAG_INDENT; i++)
+            sock.write(' ');
+        
+        sock.write(message.c_str());
+        sock.write('\n');
+
+        sock.endPacket();
+    }
+
+    FullLogger::FullLogger(Print* _stream)
+        : PrintL(_stream) {}
+
+    void FullLogger::Log(const LogLevel level, const char* tag, const char* message)
+    {
+        PrintL.Log(level, tag, message);
+        SpoonL.Log(level, tag, message);
+    }
+
+    void FullLogger::Log(const LogLevel level, const char* tag, const String message)
+    {
+        PrintL.Log(level, tag, message);
+        SpoonL.Log(level, tag, message);
     }
 
 } // namespace techies::components

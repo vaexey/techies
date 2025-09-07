@@ -43,6 +43,8 @@ namespace techies::components
 
     bool Ethernet::active = false;
     bool Ethernet::last_link = false;
+    bool Ethernet::SpoonSocketActive = false;
+    EthernetUDP Ethernet::SpoonSocket {};
 
     void Ethernet::Init()
     {
@@ -54,6 +56,13 @@ namespace techies::components
         {
             L->Err(TAG, "Ethernet controller hardware could not be found");
         }
+
+        L->Info(TAG,
+            "Opening Spoon socket..."
+        );
+
+        SpoonSocket.begin(TCFG_C_ETHERNET_SPOON_DEVICE_PORT);
+        SpoonSocketActive = true;
 
         techies::core::event::Manager::BeforeCycle
             .Connect(OnBeforeCycle);

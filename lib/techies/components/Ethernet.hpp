@@ -1,6 +1,7 @@
 #include "core/Config.hpp"
 #include <Arduino.h>
 #include <Ethernet.h>
+#include <EthernetUdp.h>
 
 #ifndef TCFG_C_ETHERNET_MAC
 #error TCFG has missing C_ETHERNET_MAC
@@ -35,6 +36,9 @@ namespace techies::components
         static bool HasLink();
 
         static void OnBeforeCycle();
+
+        static bool SpoonSocketActive;
+        static EthernetUDP SpoonSocket;
     };
 
 } // namespace techies::components
